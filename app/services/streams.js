@@ -1,4 +1,4 @@
-import { mediaDevices } from 'react-native-webrtc';
+import { MediaStream, mediaDevices } from 'react-native-webrtc';
 
 export const getMediaDevices = async () => {
   let cameraCount = 0;
@@ -51,4 +51,22 @@ export const getLocalStream = async ({
   } catch (error) {
     console.log('ERROR => ', error);
   };
+};
+
+export const sendLocalStream = ({ connection, localStream }) => {
+  localStream.getTracks().forEach((track) => {
+    connection.addTrack(track, localStream);
+  });
+};
+
+export const getRemoteStream = (connection) => {
+  const remoteStream = new MediaStream();
+
+  connection.ontrack = ({ streams }) => {
+    streams[0].getTracks().forEach((track) => {
+      remoteStream.addTrack(track);
+    });
+  };
+
+  return remoteStream;
 };
