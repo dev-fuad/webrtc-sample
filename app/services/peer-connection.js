@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer } from "react";
-import { RTCPeerConnection } from "react-native-webrtc";
 import { getRemoteStream, sendLocalStream } from "./streams";
+import { RTCPeerConnection } from './web-rtc';
 
 const servers = {
   iceServers: [

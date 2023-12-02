@@ -1,4 +1,4 @@
-import { MediaStream, mediaDevices } from 'react-native-webrtc';
+import { MediaStream, mediaDevices } from "./web-rtc";
 
 export const getMediaDevices = async () => {
   let cameraCount = 0;
@@ -34,7 +34,7 @@ export const getLocalStream = async ({
         minHeight: 300,
         minFrameRate: 30,
       },
-      facingMode,
+      // facingMode,
       optional: sourceId ? [{ sourceId }] : [],
     },
   };

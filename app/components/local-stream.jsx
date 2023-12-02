@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { StyleSheet } from "react-native";
-import { RTCView } from "react-native-webrtc";
+import { Platform, StyleSheet } from "react-native";
+import { RTCView } from "../services/web-rtc";
 import { usePeerConnection } from "../services/peer-connection";
 import { getLocalStream } from "../services/streams";
 
@@ -25,13 +25,18 @@ export const LocalStream = () => {
     };
   }, []);
 
+  const options = Platform.select({
+    native: () => ({ streamURL: localStream?.toURL() }),
+    web: () => ({ stream: localStream }),
+  });
+
   return (
     <RTCView
       style={StyleSheet.absoluteFill}
       mirror={true}
       objectFit={'cover'}
-      streamURL={localStream?.toURL()}
       zOrder={0}
+      {...options()}
     />
   );
 };

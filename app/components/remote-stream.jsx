@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { SafeAreaView, StyleSheet } from "react-native";
-import { RTCView } from "react-native-webrtc";
+import { RTCView } from "../services/web-rtc";
 import { usePeerConnection } from "../services/peer-connection";
 
 export const RemoteStream = () => {
@@ -13,14 +13,19 @@ export const RemoteStream = () => {
     initiateIO();
   }, []);
 
+  const options = Platform.select({
+    native: () => ({ streamURL: remoteStream?.toURL() }),
+    web: () => ({ stream: remoteStream }),
+  });
+
   return (
     <SafeAreaView>
       <RTCView
         style={styles.remoteView}
         mirror={true}
         objectFit={'cover'}
-        streamURL={remoteStream?.toURL()}
         zOrder={0}
+        {...options()}
       />
     </SafeAreaView>
   );
