@@ -3,28 +3,49 @@ import { useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet } from "react-native";
 import { usePeerConnection } from '../services/peer-connection';
 import { createRoom } from '../services/rooms';
+import { RoomsList } from './rooms-list';
 
 export const CallActions = () => {
   const [roomId, setRoomId] = useState();
+  const [isJoinee, setIsJoinee] = useState(false);
+
   const { connection } = usePeerConnection();
 
   const makeCall = () => {
     createRoom(connection, setRoomId);
   };
 
+  const join = () => setIsJoinee(true);
+
   // TODO: add a way to invite other
   // like send a link to join call
   const invite = () => { };
 
+
+  if (isJoinee) {
+    return (
+      <SafeAreaView style={styles.actionBar}>
+        <RoomsList />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.actionBar}>
-      <Pressable style={styles.button} onPress={makeCall}>
-        <Icon name="call-outline" size={32} />
-      </Pressable>
+      {!roomId && (
+        <>
+          <Pressable style={styles.button} onPress={makeCall}>
+            <Icon name="call-outline" size={32} />
+          </Pressable>
+          <Pressable style={styles.button} onPress={join}>
+            <Icon name="list-outline" size={32} />
+          </Pressable>
+        </>
+      )}
 
       {roomId && (
         <Pressable style={styles.button} onPress={invite}>
-          <Icon name="person-add-sharp" size={32} />
+          <Icon name="person-add-outline" size={32} />
         </Pressable>
       )}
     </SafeAreaView>
