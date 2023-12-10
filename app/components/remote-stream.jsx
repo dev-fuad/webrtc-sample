@@ -1,33 +1,25 @@
-import { useEffect } from "react";
 import { SafeAreaView, StyleSheet } from "react-native";
-import { RTCView } from "../services/web-rtc";
 import { usePeerConnection } from "../services/peer-connection";
+import { RTCView } from "../services/web-rtc";
 
 export const RemoteStream = () => {
-  const {
-    remoteStream,
-    initiateIO,
-  } = usePeerConnection();
-
-  useEffect(() => {
-    initiateIO();
-  }, []);
+  const { remoteStream } = usePeerConnection();
 
   const options = Platform.select({
     native: () => ({ streamURL: remoteStream?.toURL() }),
     web: () => ({ stream: remoteStream }),
   });
 
+  if (!remoteStream) return null;
+  
   return (
-    <SafeAreaView>
-      <RTCView
-        style={styles.remoteView}
-        mirror={true}
-        objectFit={'cover'}
-        zOrder={0}
-        {...options()}
-      />
-    </SafeAreaView>
+    <RTCView
+      style={styles.remoteView}
+      mirror={true}
+      objectFit={'cover'}
+      zOrder={1}
+      {...options()}
+    />
   );
 };
 
@@ -36,8 +28,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    width: '10%',
-    height: '10%',
+    width: '30%',
+    aspectRatio: 9 / 16,
     backgroundColor: 'black'
   },
 });

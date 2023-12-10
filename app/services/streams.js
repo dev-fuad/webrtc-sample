@@ -59,14 +59,22 @@ export const sendLocalStream = ({ connection, localStream }) => {
   });
 };
 
-export const getRemoteStream = (connection) => {
-  const remoteStream = new MediaStream();
-
+export const getRemoteStream = (connection, setRemoteStream) => {
   connection.ontrack = ({ streams }) => {
+    const remoteStream = new MediaStream();
     streams[0].getTracks().forEach((track) => {
       remoteStream.addTrack(track);
     });
+    setRemoteStream(remoteStream);
   };
+};
 
-  return remoteStream;
+export const stopSendingStream = (connection, closeConnection) => {
+  if (connection) {
+    const senders = connection.getSenders();
+    senders.forEach((sender) => {
+      connection.removeTrack(sender);
+    });
+    closeConnection();
+  }
 };

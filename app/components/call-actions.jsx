@@ -2,17 +2,18 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet } from "react-native";
 import { usePeerConnection } from '../services/peer-connection';
-import { createRoom } from '../services/rooms';
+import { createRoom, deleteRoom } from '../services/rooms';
 import { RoomsList } from './rooms-list';
+import { stopSendingStream } from '../services/streams';
 
 export const CallActions = () => {
   const [roomId, setRoomId] = useState();
   const [isJoinee, setIsJoinee] = useState(false);
 
-  const { connection } = usePeerConnection();
+  const { connection, localStream, setLocalStream, setRemoteStream, closeConnection } = usePeerConnection();
 
   const makeCall = () => {
-    createRoom(connection, setRoomId);
+    createRoom(connection, setRoomId, localStream, setRemoteStream);
   };
 
   const join = () => setIsJoinee(true);
@@ -21,11 +22,19 @@ export const CallActions = () => {
   // like send a link to join call
   const invite = () => { };
 
+  const endCall = async () => {
+    stopSendingStream(connection, closeConnection);
 
-  if (isJoinee) {
+    await deleteRoom(roomId);
+
+    setLocalStream();
+    setRemoteStream();
+  };
+
+  if (isJoinee && !roomId) {
     return (
       <SafeAreaView style={styles.actionBar}>
-        <RoomsList />
+        <RoomsList setRoomId={setRoomId} />
       </SafeAreaView>
     );
   }
@@ -44,9 +53,14 @@ export const CallActions = () => {
       )}
 
       {roomId && (
-        <Pressable style={styles.button} onPress={invite}>
-          <Icon name="person-add-outline" size={32} />
-        </Pressable>
+        <>
+          <Pressable style={styles.button} onPress={invite}>
+            <Icon name="person-add-outline" size={32} />
+          </Pressable>
+          <Pressable style={styles.button} onPress={endCall}>
+            <Icon name="call" size={32} color="red" />
+          </Pressable>
+        </>
       )}
     </SafeAreaView>
   );

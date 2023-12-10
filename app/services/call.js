@@ -1,11 +1,11 @@
 // web-rtc side of calling
 
-import { RTCSessionDescription } from "./web-rtc";
+import { RTCSessionDescription, RTCIceCandidate } from "./web-rtc";
 
 export const listenForCandidates = (connection, callback) => {
-  connection.onicecandidate = ({ candidate }) => {
+  connection.addEventListener('icecandidate', ({ candidate }) => {
     candidate && callback(candidate.toJSON());
-  };
+  });
 };
 
 export const saveCandidate = (connection, candidate) => {

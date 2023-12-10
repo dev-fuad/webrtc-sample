@@ -19,15 +19,16 @@ const PeerConnection = createContext({
   remoteStream: null,
 
   setLocalStream: () => { },
+  setRemoteStream: () => { },
   setPeer: () => { },
-  initiateIO: () => { },
+  closeConnection: () => { },
 });
 
 const connectionActions = {
   SET_LOCAL_STREAM: 'set-local-stream',
+  SET_REMOTE_STREAM: 'set-remote-stream',
   SET_PEER: 'set-peer',
-
-  INITIATE_IO: 'initiate-io',
+  CLOSE_CONNECTION: 'close-connection',
 };
 
 const reductions = {
@@ -39,15 +40,19 @@ const reductions = {
     ...state,
     peer: action.payload,
   }),
-  [connectionActions.INITIATE_IO]: (state) => {
-    if (!state || state.remoteStream) return;
-
-    sendLocalStream(state);
-    const remoteStream = getRemoteStream(state.connection);
+  [connectionActions.CLOSE_CONNECTION]: (state, action) => {
+    connection.close();
+    return {
+      ...state,
+      connection: null,
+    };
+  },
+  [connectionActions.SET_REMOTE_STREAM]: (state, action) => {
+    if (!state || state.remoteStream) return state;
 
     return {
       ...state,
-      remoteStream
+      remoteStream: action.payload
     };
   },
   default: (state, action) => {
@@ -68,12 +73,20 @@ export const ConnectionProvider = ({ children }) => {
     payload: stream,
   });
 
+  const setRemoteStream = (stream) => dispatch({
+    type: connectionActions.SET_REMOTE_STREAM,
+    payload: stream,
+  });
+
   const setPeer = (peer) => dispatch({
     type: connectionActions.SET_PEER,
     payload: peer,
   });
 
-  const initiateIO = () => dispatch({ type: connectionActions.INITIATE_IO });
+  const closeConnection = (peer) => dispatch({
+    type: connectionActions.SET_PEER,
+    payload: peer,
+  });
 
   return (
     <PeerConnection.Provider value={{
@@ -81,7 +94,8 @@ export const ConnectionProvider = ({ children }) => {
       connection: new RTCPeerConnection(servers),
       setLocalStream,
       setPeer,
-      initiateIO,
+      setRemoteStream,
+      closeConnection,
     }}>
       {children}
     </PeerConnection.Provider>
